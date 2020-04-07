@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quizzler/quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 void main() => runApp(Quizzler());
 
@@ -7,6 +8,7 @@ class Quizzler extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.grey.shade900,
         body: SafeArea(
@@ -31,13 +33,14 @@ class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
 
   void insertIcon({bool givenAnswer}) {
-    if (!quiz.isLast()) {
+    if (!quiz.isFinished()) {
       if (givenAnswer ==
           quiz.getQuestionAnswer(questionNumber: quiz.getQuestionNumber())) {
         setState(() {
           scoreKeeper.add(
             Icon(Icons.check, color: Colors.green),
           );
+          quiz.increaseScore();
         });
       } else {
         setState(() {
@@ -46,8 +49,40 @@ class _QuizPageState extends State<QuizPage> {
           );
         });
       }
+      quiz.setQuestionNumber();
+    } else {
+      showResults();
     }
-    quiz.setQuestionNumber();
+  }
+
+  void showResults() {
+    List<int> information = quiz.getStatistics();
+    Alert(
+        context: context,
+        type: AlertType.success,
+        title: "Finished!",
+        desc:
+            "You've reached the end of the quiz\n\nYou got ${information[0]} of ${information[1]} questions.",
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Try again",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () {
+              resetGame();
+              Navigator.pop(context);
+            },
+            width: 120,
+          )
+        ]).show();
+  }
+
+  void resetGame() {
+    setState(() {
+      quiz.resetCounters();
+      scoreKeeper.clear();
+    });
   }
 
   @override

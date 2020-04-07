@@ -2,6 +2,7 @@ import 'question.dart';
 
 class QuizBrain {
   int _questionNumber = 0;
+  int _gotCorrect = 0;
 
   List<Question> _questions = [
     Question('Some cats are actually allergic to humans', true),
@@ -43,11 +44,24 @@ class QuizBrain {
     return this._questionNumber;
   }
 
+  void resetCounters() {
+    this._gotCorrect = 0;
+    this._questionNumber = 0;
+  }
+
   void setQuestionNumber() {
     this._questionNumber++;
   }
 
-  bool isLast() {
+  List<int> getStatistics() {
+    return [this._gotCorrect, this._questions.length];
+  }
+
+  void increaseScore() {
+    this._gotCorrect++;
+  }
+
+  bool isFinished() {
     if (this._questionNumber < this._questions.length - 1) {
       return false;
     }
